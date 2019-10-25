@@ -43,7 +43,7 @@ class ReqHandler(BaseHTTPRequestHandler):
                 elif kind == 'update-o':
                     ok = os.update_order(token, order_id, data)
                     errorMsg = 'error updating order' if not ok else ''
-                elif kind == 'finish-o':
+                elif kind == 'delete-o':
                     ok = os.finish_order(order_id)
                     errorMsg = 'error finishing order' if not ok else ''
                 elif kind == 'create-p':

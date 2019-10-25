@@ -88,9 +88,9 @@ class OnlineServices:
         return supply_id
 
     def update_supply(self, supply_id, data):
-        queries.update_product(self.db, supply_id, data)
+        queries.update_supply(self.db, supply_id, data)
         return True
 
     def delete_supply(self, supply_id):
-        queries.delete_product(self.db, supply_id)
+        queries.delete_supply(self.db, supply_id)
         return True
