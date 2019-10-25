@@ -84,8 +84,10 @@ def create_order(dbvars, data, user):
 
 
 def update_order(dbvars, user, order_id, data):
+    print('updating order')
     deactivate_prev_order(dbvars, order_id)
     insert_order_history(dbvars, user, order_id, data)
+    print('finished updating order')
 
 
 def finish_order(dbvars, order_id):
@@ -211,6 +213,7 @@ def get_created_supply(dbvars, user_id):
 
 
 def update_order_price(dbvars, order_id):
+    print('updating order price')
     total_price = 0
     prices = get_order_price(dbvars, order_id)
     for price in prices:
@@ -223,9 +226,11 @@ def update_order_price(dbvars, order_id):
     dbconn.commit()
     dbcur.close()
     dbconn.close()
+    print('finished updating order price')
 
 
 def get_order_price(dbvars, order_id):
+    print('getting order price')
     dbconn = MySQLdb.connect(host=dbvars['host'], user=dbvars['user'],
                              passwd=dbvars['pass'], db=dbvars['name'])
     dbcur = dbconn.cursor()
@@ -234,6 +239,7 @@ def get_order_price(dbvars, order_id):
     order = dbcur.fetchall()
     dbcur.close()
     dbconn.close()
+    print('finished getting order price')
     return order if order else None
 
 
@@ -294,6 +300,7 @@ def user_from_token(dbvars, token):
 
 
 def insert_order_history(dbvars, user, order_id, data):
+    print('inserting order hist')
     dbconn = MySQLdb.connect(host=dbvars['host'], user=dbvars['user'],
                              passwd=dbvars['pass'], db=dbvars['name'])
     dbcur = dbconn.cursor()
@@ -308,9 +315,11 @@ def insert_order_history(dbvars, user, order_id, data):
     dbconn.commit()
     dbcur.close()
     dbconn.close()
+    print('finished inserting order hist')
 
 
 def deactivate_prev_order(dbvars, order_id):
+    print('deactivating prev order')
     dbconn = MySQLdb.connect(host=dbvars['host'], user=dbvars['user'],
                              passwd=dbvars['pass'], db=dbvars['name'])
     dbcur = dbconn.cursor()
@@ -319,6 +328,7 @@ def deactivate_prev_order(dbvars, order_id):
     dbconn.commit()
     dbcur.close()
     dbconn.close()
+    print('finished deactivating prev order')
 
 
 def finalize_order(dbvars, order_id):
