@@ -58,6 +58,7 @@ class ReqHandler(BaseHTTPRequestHandler):
                     errorMsg = 'error deleting product' if not ok else ''
                 elif kind == 'create-s':
                     order_id = os.create_supply(token, data)
+                    ok = True if order_id else False
                     errorMsg = 'error creating supply' if not ok else ''
                 elif kind == 'update-s':
                     ok = os.update_supply(order_id, data)
