@@ -7,3 +7,81 @@ Create product
  				"price": "50"
 			}
 }
+
+Update product
+{
+	"kind": "update-p",
+	"order_id": 3,
+	"data": {
+				"name": "Orden de suaperro",
+				"price": 30
+			}
+}
+Delete product
+{
+	"kind": "delete-p",
+	"order_id": 4
+}
+ --------------------------------------------------------
+Create order
+{
+	"kind": "create-o",
+	"order_id": null,
+	"data": [{
+ 				"id": 3,
+ 				"quantity": 1
+			},
+			{
+				"id": 4,
+				"quantity": 2
+			}
+			]
+}
+
+Update order
+{
+	"kind": "update-o",
+	"order_id": 4,
+	"data": [{
+ 				"id": 3,
+ 				"quantity": 6
+			},
+			{
+				"id": 4,
+				"quantity": 8
+			}
+			]
+}
+
+Delete order
+{
+	"kind": "delete-o",
+	"order_id": 4
+}
+
+Create supply
+{
+	"kind": "create-s",
+	"order_id": null,
+	"data": {
+				"name": "carnes de hamburguesa",
+				"quantity": 20,
+				"price": 100
+			}
+}
+
+Update supply
+{
+	"kind": "update-s",
+	"order_id": 1,
+	"data": {
+				"name": "Carnes burguers",
+				"quantity": 30,
+				"price": 20
+			}
+}
+Delete supply
+{
+	"kind": "delete-s",
+	"order_id": 4
+}

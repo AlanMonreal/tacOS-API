@@ -6,7 +6,7 @@ from os import getenv
 from urllib.parse import urlparse
 
 
-class Order():
+class OldOrder():
     def __init__(self, iden, tracking, kind, y, x, name, phone, line,
                  neighborhood, city, postal, reference, content, weight,
                  length, width, height, company):
@@ -24,9 +24,27 @@ class Order():
                         'width': width, 'height': height}
 
 
-class AssignedGuide():
-    def __init__(self, tracking):
-        self.tracking = tracking if tracking else None
+class Product():
+    def __init__(self, id, name, price):
+        self.id = id
+        self.name = name
+        self.price = price
+
+
+class Order():
+    def __init__(self, id, total_price, products, created_at):
+        self.id = id
+        self.total_price = total_price
+        self.products = products
+        self.created_at = created_at
+
+
+class Supply():
+    def __init__(self, id, name, quantity, price):
+        self.id = id
+        self.name = name
+        self.quantity = quantity
+        self.price = price
 
 
 class OnlineServices:
@@ -94,3 +112,19 @@ class OnlineServices:
     def delete_supply(self, supply_id):
         queries.delete_supply(self.db, supply_id)
         return True
+
+    def export_data(self, token):
+        user = queries.user_from_token(self.db, token)
+        products_list = queries.get_all_products(self.db, user)
+        supplies_list = queries.get_all_supplies(self.db, user)
+        orders_list = queries.get_all_orders(self.db, user)
+
+        orders, supplies, products = [], [], []
+        for product in products_list:
+            products.append(Product(*product).__dict__)
+        for supply in supplies_list:
+            supplies.append(Supply(*supply).__dict__)
+        for order in orders_list:
+            orders.append(Order(*tuple(order)).__dict__)
+        data = {'orders': orders, 'products': products, 'supplies': supplies}
+        return data

@@ -1,3 +1,4 @@
+import OnlineServices
 import MySQLdb
 from requests import post
 from os import getenv
@@ -332,6 +333,56 @@ def finalize_order(dbvars, order_id):
     dbconn.close()
 
 
+def get_all_products(dbvars, user):
+    dbconn = MySQLdb.connect(host=dbvars['host'], user=dbvars['user'],
+                             passwd=dbvars['pass'], db=dbvars['name'])
+    dbcur = dbconn.cursor()
+    sql = 'SELECT id, name, price FROM productos WHERE user_id = %s AND active = TRUE'
+    dbcur.execute(sql, (user,))
+    regs = dbcur.fetchall()
+    dbcur.close()
+    dbconn.close()
+    return regs if regs else None
+
+
+def get_all_supplies(dbvars, user):
+    dbconn = MySQLdb.connect(host=dbvars['host'], user=dbvars['user'],
+                             passwd=dbvars['pass'], db=dbvars['name'])
+    dbcur = dbconn.cursor()
+    sql = 'SELECT id, name, quantity, price FROM productos WHERE user_id = %s AND active = TRUE'
+    dbcur.execute(sql, (user,))
+    regs = dbcur.fetchall()
+    dbcur.close()
+    dbconn.close()
+    return regs if regs else None
+
+
+def get_all_orders(dbvars, user):
+    dbconn = MySQLdb.connect(host=dbvars['host'], user=dbvars['user'],
+                             passwd=dbvars['pass'], db=dbvars['name'])
+    dbcur = dbconn.cursor()
+    sql = 'SELECT id, total_price, created_at FROM ordenes WHERE user_id = %s AND active = TRUE'
+    dbcur.execute(sql, (user,))
+    regs = dbcur.fetchall()
+    sql = 'SELECT id, name, price FROM productos WHERE user_id = %s AND active = TRUE'
+    dbcur.execute(sql, (user,))
+    subData = dbcur.fetchall()
+    data = []
+    for reg in regs:
+        subD = []
+        for item in reg:
+            subD.append(item)
+        subList = []
+        for sd in subData:
+            subList.append(OnlineServices.Product(*sd).__dict__)
+        subD.append(subList)
+        data.append(subD)
+    tuple(data)
+    dbcur.close()
+    dbconn.close()
+    return data if data else None
+
+
 # ---------------------------------------------------------------------------
 def get_base_locations(dbvars):
     dbconn = MySQLdb.connect(host=dbvars['host'], user=dbvars['user'],
@@ -477,68 +528,6 @@ def update_guide_status(dbvars, tracks, status, msg, user, receiver):
     dbconn.commit()
     dbcur.close()
     dbconn.close()
-
-
-def send_mail(dbvars, tracks):
-    FILE_PATH = 'resources/views/mail_view.html'
-    MAIL_TEMPLATE = open(FILE_PATH, 'r').read()
-    key = getenv('MAILGUN').split('|')[0]
-    domain = getenv('MAILGUN').split('|')[1]
-    version = getenv('MAILGUN').split('|')[2]
-    dbconn = MySQLdb.connect(host=dbvars['host'], user=dbvars['user'],
-                             passwd=dbvars['pass'], db=dbvars['name'])
-    dbcur = dbconn.cursor()
-    insertData = ()
-    for track in tracks:
-        insertData = insertData + (track,)
-    sql = 'SELECT tracking_number, origin_email, origin_name, destination_street,'\
-          ' destination_ext_number, destination_postal_code, destination_district,'\
-          ' destination_city FROM shipment_guides WHERE tracking_number IN ({})'
-    sql = sql.format(','.join(['%s']*len(insertData)))
-    dbcur.execute(sql, insertData)
-    data = dbcur.fetchall()
-    dbcur.close()
-    dbconn.close()
-    mailArray = [[]]
-    mailDict = [{}]
-    for index, mailObj in enumerate(data):
-        tracking = mailObj[0]
-        mail = mailObj[1]
-        usrName = mailObj[2].title()
-        usrAddress = mailObj[3] + ' ' + mailObj[4] + ', ' + mailObj[6] + ', '
-        usrAddress = usrAddress + mailObj[5] + ' ' + mailObj[7]
-        added = False
-        arrayIndex = 0
-
-        while not added:
-            curArr = mailArray[arrayIndex]
-            curDic = mailDict[arrayIndex]
-            if mail not in curArr:
-                curArr.append(mail)
-                curDic[mail] = {"tracking": str(tracking), "first": usrName,
-                                "address": usrAddress, "id": index}
-                added = True
-            elif mail in curArr and ((arrayIndex + 1) == len(mailArray)):
-                mailArray.append([])
-                mailDict.append({})
-                arrayIndex += 1
-                continue
-            else:
-                arrayIndex += 1
-                continue
-
-    for index, contacts in enumerate(mailArray):
-        r = post(
-            'https://' + version + domain + '/messages',
-            auth=('api', key),
-            data={'from': 'Quiken <notificaciones@quiken.mx>',
-                  'to': contacts,
-                  'subject': 'Paquete entregado',
-                  'html': MAIL_TEMPLATE,
-                  'recipient-variables': dumps(mailDict[index])
-                  }
-            )
-        print(r.json())
 
 
 def get_assigned_guides(dbvars, user):
