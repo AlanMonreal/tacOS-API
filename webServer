@@ -13,7 +13,7 @@ class ReqHandler(BaseHTTPRequestHandler):
         qs = parse_qs(urlparse(self.path).query)
         token = qs['token'] if 'token' in qs else None
         os = OnlineServices.OnlineServices()
-        payload = dumps(os.export_routes(token))
+        payload = dumps(os.export_data(token))
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
