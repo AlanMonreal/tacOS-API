@@ -1,0 +1,9 @@
+Create product
+{
+	"kind": "create-p",
+	"order_id": null,
+	"data": {
+ 				"name": "Orden de Bistec",
+ 				"price": "50"
+			}
+}

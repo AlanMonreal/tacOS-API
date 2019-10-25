@@ -1,0 +1,104 @@
+# !/usr/bin/env python3
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import parse_qs, urlparse
+from os import getenv
+from json import dumps, loads
+import OnlineServices
+
+PORT = '8000'
+
+
+class ReqHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        qs = parse_qs(urlparse(self.path).query)
+        token = qs['token'] if 'token' in qs else None
+        os = OnlineServices.OnlineServices()
+        payload = dumps(os.export_routes(token))
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(payload.encode())
+
+    def do_PUT(self):
+        qs = parse_qs(urlparse(self.path).query)
+        token = qs['token'] if 'token' in qs else None
+        payload = loads(self.rfile.read(int(self.headers['Content-Length'])))
+        print(payload)
+
+        kind = payload['kind'] if 'kind' in payload else None
+        order_id = payload['order_id'] if 'order_id' in payload else None
+        data = payload['data'] if 'data' in payload else None
+
+        os = OnlineServices.OnlineServices()
+        user = os.validate_user(token)
+
+        if user is not False:
+            ok = False
+            errorMsg = ''
+            try:
+                if kind == 'create-o':
+                    order_id = os.create_order(token, data)
+                    ok = True if order_id else False
+                    errorMsg = 'error creating order' if not ok else ''
+                elif kind == 'update-o':
+                    ok = os.update_order(token, order_id, data)
+                    errorMsg = 'error updating order' if not ok else ''
+                elif kind == 'finish-o':
+                    ok = os.finish_order(order_id)
+                    errorMsg = 'error finishing order' if not ok else ''
+                elif kind == 'create-p':
+                    order_id = os.create_product(token, data)
+                    ok = True if order_id else False
+                    errorMsg = 'error creating product' if not ok else ''
+                elif kind == 'update-p':
+                    ok = os.update_product(order_id, data)
+                    errorMsg = 'error updating product' if not ok else ''
+                elif kind == 'delete-p':
+                    ok = os.delete_product(order_id)
+                    errorMsg = 'error deleting product' if not ok else ''
+                elif kind == 'create-s':
+                    order_id = os.create_suply(token, data)
+                    errorMsg = 'error creating supply' if not ok else ''
+                elif kind == 'update-s':
+                    ok = os.update_supply(order_id, data)
+                    errorMsg = 'error updating supply' if not ok else ''
+                elif kind == 'delete-s':
+                    ok = os.delete_supply(order_id)
+                    errorMsg = 'error deleting supply' if not ok else ''
+            except Exception as e:
+                print('Error: ', e)
+                errorMsg = 'Internal server error'
+            finally:
+                response = 'ok' if ok else 'error'
+                payload = {'response': response, 'order-id': order_id,
+                           'errorMsg': errorMsg}
+        else:
+            payload['response'] = 'no-token'
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(dumps(payload).encode())
+
+    def do_POST(self):
+        payload = loads(self.rfile.read(int(self.headers['Content-Length'])))
+        print(payload)
+        user = payload['user'] if 'user' in payload else None
+        password = payload['password'] if 'password' in payload else None
+        os = OnlineServices.OnlineServices()
+        token = os.login(user, password)
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        # payload = {'token': token}
+        payload = token
+        self.wfile.write(dumps(payload).encode())
+
+
+if __name__ == '__main__':
+    try:
+        PORT = getenv('PORT', PORT)
+        with HTTPServer(('', int(PORT)), ReqHandler) as httpd:
+            print('Started server on port', PORT)
+            httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
