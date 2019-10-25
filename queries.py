@@ -229,13 +229,24 @@ def get_order_price(dbvars, order_id):
     dbconn = MySQLdb.connect(host=dbvars['host'], user=dbvars['user'],
                              passwd=dbvars['pass'], db=dbvars['name'])
     dbcur = dbconn.cursor()
-    sql = 'SELECT total_price FROM historial_ventas WHERE order_id = %s' \
-          'AND active = 1'
+    sql = 'SELECT total_price FROM historial_ventas WHERE order_id = %s AND active = TRUE'
     dbcur.execute(sql, (order_id,))
     order = dbcur.fetchall()
     dbcur.close()
     dbconn.close()
     return order[0] if order else None
+
+
+def get_product_price(dbvars, id):
+    dbconn = MySQLdb.connect(host=dbvars['host'], user=dbvars['user'],
+                             passwd=dbvars['pass'], db=dbvars['name'])
+    dbcur = dbconn.cursor()
+    sql = 'SELECT price FROM productos WHERE id = %s AND active = TRUE'
+    dbcur.execute(sql, (id,))
+    order = dbcur.fetchall()
+    dbcur.close()
+    dbconn.close()
+    return order[0][0] if order else None
 
 
 def get_email(dbvars, token):
@@ -288,10 +299,10 @@ def insert_order_history(dbvars, user, order_id, data):
     dbcur = dbconn.cursor()
     insertData = []
     for item in data:
-        insertData.append((item['id'], item['quantity'], user, order_id))
-
-    sql = 'INSERT INTO historial_ventas (product_id, total_price, user_id,' \
-          'order_id) VALUES(%s, %s, %s, %s)'
+        price = get_product_price(dbvars, item['id']) * item['quantity']
+        insertData.append((item['id'], item['quantity'], user, order_id, price))
+    sql = 'INSERT INTO historial_ventas (product_id, quantity, user_id,' \
+          'order_id, total_price) VALUES(%s, %s, %s, %s, %s)'
 
     dbcur.executemany(sql, insertData)
     dbconn.commit()
