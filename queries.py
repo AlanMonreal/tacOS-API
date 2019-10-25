@@ -349,7 +349,7 @@ def get_all_supplies(dbvars, user):
     dbconn = MySQLdb.connect(host=dbvars['host'], user=dbvars['user'],
                              passwd=dbvars['pass'], db=dbvars['name'])
     dbcur = dbconn.cursor()
-    sql = 'SELECT id, name, quantity, price FROM productos WHERE user_id = %s AND active = TRUE'
+    sql = 'SELECT id, name, quantity, price FROM suministros WHERE user_id = %s AND active = TRUE'
     dbcur.execute(sql, (user,))
     regs = dbcur.fetchall()
     dbcur.close()
