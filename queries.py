@@ -361,7 +361,7 @@ def get_all_orders(dbvars, user):
     dbconn = MySQLdb.connect(host=dbvars['host'], user=dbvars['user'],
                              passwd=dbvars['pass'], db=dbvars['name'])
     dbcur = dbconn.cursor()
-    sql = 'SELECT id, total_price, CAST(created_at, char) FROM ordenes WHERE user_id = %s AND active = TRUE'
+    sql = 'SELECT id, total_price, CAST(created_at, char(25)) FROM ordenes WHERE user_id = %s AND active = TRUE'
     dbcur.execute(sql, (user,))
     regs = dbcur.fetchall()
     sql = 'SELECT id, name, price FROM productos WHERE user_id = %s AND active = TRUE'
