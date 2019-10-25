@@ -214,11 +214,11 @@ def update_order_price(dbvars, order_id):
     total_price = 0
     prices = get_order_price(dbvars, order_id)
     for price in prices:
-        total_price += price
+        total_price += price[0]
     dbconn = MySQLdb.connect(host=dbvars['host'], user=dbvars['user'],
                              passwd=dbvars['pass'], db=dbvars['name'])
     dbcur = dbconn.cursor()
-    sql = 'UPDATE ordenes SET total_price = %s WHERE order_id = %s'
+    sql = 'UPDATE ordenes SET total_price = %s WHERE id = %s'
     dbcur.execute(sql, (total_price, order_id))
     dbconn.commit()
     dbcur.close()
@@ -234,7 +234,7 @@ def get_order_price(dbvars, order_id):
     order = dbcur.fetchall()
     dbcur.close()
     dbconn.close()
-    return order[0] if order else None
+    return order if order else None
 
 
 def get_product_price(dbvars, id):
@@ -314,7 +314,7 @@ def deactivate_prev_order(dbvars, order_id):
     dbconn = MySQLdb.connect(host=dbvars['host'], user=dbvars['user'],
                              passwd=dbvars['pass'], db=dbvars['name'])
     dbcur = dbconn.cursor()
-    sql = 'UPDATE historial_ventas SET active = 0 WHERE order_id = %s'
+    sql = 'UPDATE historial_ventas SET active = FALSE WHERE order_id = %s'
     dbcur.execute(sql, (order_id,))
     dbconn.commit()
     dbcur.close()
