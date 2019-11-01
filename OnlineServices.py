@@ -32,7 +32,7 @@ class Product():
 
 
 class Order():
-    def __init__(self, id, total_price, products, created_at):
+    def __init__(self, id, total_price, created_at, products):
         self.id = id
         self.total_price = total_price
         self.products = products
