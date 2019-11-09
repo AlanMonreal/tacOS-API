@@ -398,7 +398,7 @@ def get_all_orders(dbvars, user):
             if order[0] == product['order_id']:
                 for prod in product_list:
                     if prod['id'] == product['product_id']:
-                        subList.append(product)
+                        subList.append(prod)
 
         complete_order.append(subList)
         orders_data.append(complete_order)
