@@ -39,6 +39,13 @@ class Order():
         self.created_at = created_at
 
 
+class ProdOrder():
+    def __init__(self, order_id, product_id, qty):
+        self.order_id = order_id
+        self.product_id = product_id
+        self.qty = qty
+
+
 class Supply():
     def __init__(self, id, name, quantity, price):
         self.id = id

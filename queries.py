@@ -363,24 +363,49 @@ def get_all_orders(dbvars, user):
     dbcur = dbconn.cursor()
     sql = 'SELECT id, total_price, CAST(created_at AS char(25)) FROM ordenes WHERE user_id = %s AND active = TRUE'
     dbcur.execute(sql, (user,))
-    regs = dbcur.fetchall()
+    orders = dbcur.fetchall()
+    print(orders)
+
     sql = 'SELECT id, name, price FROM productos WHERE user_id = %s AND active = TRUE'
     dbcur.execute(sql, (user,))
-    subData = dbcur.fetchall()
-    data = []
-    for reg in regs:
-        subD = []
-        for item in reg:
-            subD.append(item)
+    raw_products = dbcur.fetchall()
+    product_list = []
+    for rp in raw_products:
+        product_list.append(OnlineServices.Product(*rp).__dict__)
+
+    for prod in product_list:
+        print(prod)
+
+    sql = 'SELECT order_id, product_id, quantity FROM historial_ventas WHERE user_id = %s AND active = TRUE'
+    dbcur.execute(sql, (user,))
+    order_products = dbcur.fetchall()
+    order_hist_list = []
+    for op in order_products:
+        order_hist_list.append(OnlineServices.ProdOrder(*op).__dict__)
+
+    for ohl in order_hist_list:
+        print(ohl)
+
+    orders_data = []
+
+    for order in orders:
+        complete_order = []
+        for item in order:
+            complete_order.append(item)
         subList = []
-        for sd in subData:
-            subList.append(OnlineServices.Product(*sd).__dict__)
-        subD.append(subList)
-        data.append(subD)
-    tuple(data)
+
+        for product in order_hist_list:
+            if order[0] == product['order_id']:
+                for prod in product_list:
+                    if prod['id'] == product['product_id']:
+                        subList.append(product)
+
+        complete_order.append(subList)
+        orders_data.append(complete_order)
+    tuple(orders_data)
     dbcur.close()
     dbconn.close()
-    return data if data else None
+    return orders_data if orders_data else None
 
 
 # ---------------------------------------------------------------------------
