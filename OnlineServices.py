@@ -127,11 +127,14 @@ class OnlineServices:
         orders_list = queries.get_all_orders(self.db, user)
 
         orders, supplies, products = [], [], []
-        for product in products_list:
-            products.append(Product(*product).__dict__)
-        for supply in supplies_list:
-            supplies.append(Supply(*supply).__dict__)
-        for order in orders_list:
-            orders.append(Order(*tuple(order)).__dict__)
+        if products_list:
+            for product in products_list:
+                products.append(Product(*product).__dict__)
+        if supplies_list:
+            for supply in supplies_list:
+                supplies.append(Supply(*supply).__dict__)
+        if orders_list:
+            for order in orders_list:
+                orders.append(Order(*tuple(order)).__dict__)
         data = {'orders': orders, 'products': products, 'supplies': supplies}
         return data
