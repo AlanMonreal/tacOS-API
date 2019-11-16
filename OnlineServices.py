@@ -125,6 +125,7 @@ class OnlineServices:
         products_list = queries.get_all_products(self.db, user)
         supplies_list = queries.get_all_supplies(self.db, user)
         orders_list = queries.get_all_orders(self.db, user)
+        orders_history = queries.get_order_history(self.db, user)
 
         orders, supplies, products = [], [], []
         if products_list:
@@ -135,6 +136,9 @@ class OnlineServices:
                 supplies.append(Supply(*supply).__dict__)
         if orders_list:
             for order in orders_list:
+                orders.append(Order(*tuple(order)).__dict__)
+        if orders_history:
+            for order_history in orders_history:
                 orders.append(Order(*tuple(order)).__dict__)
         data = {'orders': orders, 'products': products, 'supplies': supplies}
         return data
