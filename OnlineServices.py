@@ -127,7 +127,7 @@ class OnlineServices:
         orders_list = queries.get_all_orders(self.db, user)
         orders_history = queries.get_order_history(self.db, user)
 
-        orders, supplies, products = [], [], []
+        orders, supplies, products, history = [], [], [], []
         if products_list:
             for product in products_list:
                 products.append(Product(*product).__dict__)
@@ -139,6 +139,7 @@ class OnlineServices:
                 orders.append(Order(*tuple(order)).__dict__)
         if orders_history:
             for order_history in orders_history:
-                orders.append(Order(*tuple(order)).__dict__)
-        data = {'orders': orders, 'products': products, 'supplies': supplies}
+                history.append(Order(*tuple(order)).__dict__)
+        data = {'orders': orders, 'products': products, 'supplies': supplies,
+                'history': history}
         return data
