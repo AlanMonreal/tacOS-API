@@ -427,7 +427,7 @@ def get_order_history(dbvars, user):
     for prod in product_list:
         print(prod)
 
-    sql = 'SELECT order_id, product_id, quantity FROM historial_ventas WHERE user_id = %s AND active = TRUE'
+    sql = 'SELECT order_id, product_id, quantity FROM historial_ventas WHERE user_id = %s'
     dbcur.execute(sql, (user,))
     order_products = dbcur.fetchall()
     order_hist_list = []
